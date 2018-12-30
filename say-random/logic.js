@@ -91,6 +91,52 @@ function toggle_pause() {
     }
 }
 
+function value_changed(e) {
+    save();
+}
+
+function init() {
+    console.log("init");
+    load();
+    update_ui();
+
+    // For input-entry fields...
+
+    // ... capture 'enter' key-presses, and whatever other text-entry-completion actions are available
+    document.getElementById("delay_range_a").addEventListener("change", value_changed);
+    document.getElementById("delay_range_b").addEventListener("change", value_changed);
+    document.getElementById("choices").addEventListener("change", value_changed);
+
+    // ... capture key-down events (in order to save without needing to press 'enter')
+    document.getElementById("delay_range_a").addEventListener("keydown", value_changed);
+    document.getElementById("delay_range_b").addEventListener("keydown", value_changed);
+    document.getElementById("choices").addEventListener("keydown", value_changed);
+}
+
+function save() {
+    var s = window.localStorage;
+    s.setItem("delay_range_a", document.getElementById("delay_range_a").value);
+    s.setItem("delay_range_b", document.getElementById("delay_range_b").value);
+    s.setItem("choices", document.getElementById("choices").value);
+}
+
+function load() {
+    var s = window.localStorage;
+    var tmp;
+
+    tmp = s.getItem("delay_range_a");
+    if (tmp !== null) {
+        document.getElementById("delay_range_a").value = tmp;
+    }
+    tmp = s.getItem("delay_range_b");
+    if (tmp !== null) {
+        document.getElementById("delay_range_b").value = tmp;
+    }
+    tmp = s.getItem("choices");
+    if (tmp !== null) {
+        document.getElementById("choices").value = tmp;
+    }
+}
 
 document.addEventListener("keypress", function (e) {
     switch (e.charCode) {
