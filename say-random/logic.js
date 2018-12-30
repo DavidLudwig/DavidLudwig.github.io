@@ -90,3 +90,12 @@ function toggle_pause() {
         schedule_next();
     }
 }
+
+
+document.addEventListener("keypress", function (e) {
+    switch (e.charCode) {
+        case 32:    // spacebar
+            toggle_pause()
+            break;
+    }
+});
