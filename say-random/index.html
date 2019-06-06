@@ -14,19 +14,20 @@
     <body>
         <header>
             <h1>Random Speech</h1>
+            <p>Repeatedly picks and says one of a few, configurable, phrases, after a randomizable delay</p>
         </header>
         <p>
             <input id='play_or_pause' type='button' onclick='toggle_pause();' value="⏯"></button>
         </p>
         <hr>
         <p>
-            <h3>Time-Range (seconds)</h3>
+            <h3>Delay (seconds)</h3>
             <input id='delay_range_a' type='number' value='1' pattern='\d*'/>
             <input id='delay_range_b' type='number' value='3' pattern='\d*'/>
         </p>
         <hr>
         <p>
-            <h3>Possible Choices</h3>
+            <h3>Phrases</h3>
             <textarea id='choices' rows='12' cols='50'>top
 mid
 low
