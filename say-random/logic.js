@@ -161,14 +161,13 @@ class Speaker {
 function togglePlay() {
     if (speaker && speaker.isRunning()) {
         speaker.stop()
-        updateUI()
     } else {
         if (!speaker) {
             speaker = new Speaker();
         }
         speaker.start();
-        updateUI();
     }
+    updateUI()
 }
 
 function onValueChange(e) {
