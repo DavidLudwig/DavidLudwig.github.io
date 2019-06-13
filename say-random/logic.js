@@ -24,10 +24,10 @@ function randomPhrase() {
 function updateUI() {
     var playOrStop = document.getElementById("playOrStop");
     if (speaker !== null && speaker.isRunning()) {
-        console.log("is running");
+        // console.log("is running");
         playOrStop.value = ButtonText_Stop;
     } else {
-        console.log("is stopped");
+        // console.log("is stopped");
         playOrStop.value = ButtonText_Play;
     }
 }
@@ -175,7 +175,7 @@ function onValueChange(e) {
 }
 
 function init() {
-    console.log("init");
+    // console.log("init");
     load();
     updateUI();
 
