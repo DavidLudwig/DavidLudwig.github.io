@@ -1,8 +1,6 @@
 
 var button_text_stop = '⏹ Stop';
 var button_text_play = '▶️ Play';
-var status_text_stopped = 'Timer is stopped';
-var status_text_running = 'Timer is running';
 var speaker = null;
 const delay_on_start_s = 1;
 
@@ -25,7 +23,6 @@ function random_phrase() {
 
 function update_ui() {
     var play_or_stop = document.getElementById("play_or_stop");
-    var status_text = document.getElementById("status_text");
     if (speaker !== null && speaker.isRunning()) {
         console.log("is running");
         play_or_stop.value = button_text_stop;
