@@ -223,7 +223,9 @@ function load() {
 document.addEventListener("keypress", function (e) {
     switch (e.charCode) {
         case 32:    // spacebar
-            toggle_pause()
+            if (document.activeElement != document.getElementById('choices')) {
+                toggle_pause();
+            }
             break;
     }
 });
