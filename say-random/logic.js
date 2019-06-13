@@ -6,8 +6,8 @@ var status_text_running = 'Timer is running';
 var speaker = null;
 const delay_on_start_s = 1;
 
-function get_choices() {
-    var input = document.getElementById("choices");
+function phrases() {
+    var input = document.getElementById("phrases");
     var output = [];
     input.value.split(/[\n]/).forEach(c => {
         if (c && !c.match(/^ *$/)) {
@@ -18,9 +18,9 @@ function get_choices() {
 }
 
 function random_phrase() {
-    var choices = get_choices();
-    var index = Math.floor(Math.random() * choices.length);
-    return choices[index];
+    var possibles = phrases();
+    var index = Math.floor(Math.random() * possibles.length);
+    return possibles[index];
 }
 
 function update_ui() {
@@ -187,19 +187,20 @@ function init() {
     // ... capture 'enter' key-presses, and whatever other text-entry-completion actions are available
     document.getElementById("delay_range_a").addEventListener("change", value_changed);
     document.getElementById("delay_range_b").addEventListener("change", value_changed);
-    document.getElementById("choices").addEventListener("change", value_changed);
+    document.getElementById("phrases").addEventListener("change", value_changed);
 
     // ... capture key-down events (in order to save without needing to press 'enter')
     document.getElementById("delay_range_a").addEventListener("keydown", value_changed);
     document.getElementById("delay_range_b").addEventListener("keydown", value_changed);
-    document.getElementById("choices").addEventListener("keydown", value_changed);
+    document.getElementById("phrases").addEventListener("keydown", value_changed);
 }
 
 function save() {
     var s = window.localStorage;
     s.setItem("delay_range_a", document.getElementById("delay_range_a").value);
     s.setItem("delay_range_b", document.getElementById("delay_range_b").value);
-    s.setItem("choices", document.getElementById("choices").value);
+    s.setItem("phrases", document.getElementById("phrases").value);
+    s.setItem("choices", document.getElementById("phrases").value); // deprecated; for forward compatibility
 }
 
 function load() {
@@ -210,20 +211,25 @@ function load() {
     if (tmp !== null) {
         document.getElementById("delay_range_a").value = tmp;
     }
+
     tmp = s.getItem("delay_range_b");
     if (tmp !== null) {
         document.getElementById("delay_range_b").value = tmp;
     }
-    tmp = s.getItem("choices");
+
+    tmp = s.getItem("phrases");
+    if (tmp === null) {
+        tmp = s.getItem("choices"); // deprecated; for backwards compatibility
+    }
     if (tmp !== null) {
-        document.getElementById("choices").value = tmp;
+        document.getElementById("phrases").value = tmp;
     }
 }
 
 document.addEventListener("keypress", function (e) {
     switch (e.charCode) {
         case 32:    // spacebar
-            if (document.activeElement != document.getElementById('choices')) {
+            if (document.activeElement != document.getElementById("phrases")) {
                 toggle_play();
             }
             break;
