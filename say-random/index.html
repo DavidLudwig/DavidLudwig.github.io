@@ -4,7 +4,7 @@
         <title>Random Speech</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            #play_or_stop {
+            #playOrStop {
                 width: 100%;
                 font-size: 36px;
             }
@@ -17,13 +17,13 @@
             <p>Repeatedly picks and says one of a few, configurable, phrases, after a randomizable delay</p>
         </header>
         <p>
-            <input id='play_or_stop' type='button' onclick='toggle_play();' value="⏯"></button>
+            <input id='playOrStop' type='button' onclick='togglePlay();' value="⏯"></button>
         </p>
         <hr>
         <p>
             <h3>Delay, Range of (seconds)</h3>
-            <input id='delay_range_a' type='number' value='1' pattern='\d*'/>
-            <input id='delay_range_b' type='number' value='3' pattern='\d*'/>
+            <input id='delayRangeAS' type='number' value='1' pattern='\d*'/>
+            <input id='delayRangeBS' type='number' value='3' pattern='\d*'/>
         </p>
         <hr>
         <p>

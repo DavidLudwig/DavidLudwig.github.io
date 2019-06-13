@@ -1,8 +1,8 @@
 
-var button_text_stop = '⏹ Stop';
-var button_text_play = '▶️ Play';
+const ButtonText_Stop = '⏹ Stop';
+const ButtonText_Play = '▶️ Play';
 var speaker = null;
-const delay_on_start_s = 1;
+const DelayOnStartS = 1;
 
 function phrases() {
     var input = document.getElementById("phrases");
@@ -15,26 +15,26 @@ function phrases() {
     return output;
 }
 
-function random_phrase() {
+function randomPhrase() {
     var possibles = phrases();
     var index = Math.floor(Math.random() * possibles.length);
     return possibles[index];
 }
 
-function update_ui() {
-    var play_or_stop = document.getElementById("play_or_stop");
+function updateUI() {
+    var playOrStop = document.getElementById("playOrStop");
     if (speaker !== null && speaker.isRunning()) {
         console.log("is running");
-        play_or_stop.value = button_text_stop;
+        playOrStop.value = ButtonText_Stop;
     } else {
         console.log("is stopped");
-        play_or_stop.value = button_text_play;
+        playOrStop.value = ButtonText_Play;
     }
 }
 
-function make_duration_ms() {
-    var a = parseFloat(document.getElementById("delay_range_a").value);
-    var b = parseFloat(document.getElementById("delay_range_b").value);
+function makeDurationMS() {
+    var a = parseFloat(document.getElementById("delayRangeAS").value);
+    var b = parseFloat(document.getElementById("delayRangeBS").value);
     if (isNaN(a) || isNaN(b) || a < 0 || b < 0) {
         return NaN;
     }
@@ -130,21 +130,21 @@ class Speaker {
                 this.state = SpeakerState.INITIAL_DELAY;
                 setTimeout(
                     this.makeContinuation("timeout,INITIAL_DELAY"),
-                    delay_on_start_s * 1000
+                    DelayOnStartS * 1000
                 );
                 break;
             }
             case SpeakerState.INITIAL_DELAY:
             case SpeakerState.REGULAR_DELAY: {
                 this.state = SpeakerState.SPEAKING;
-                var phrase = random_phrase();
+                var phrase = randomPhrase();
                 var utterance = this.makeContinuingUtterance(phrase);
                 window.speechSynthesis.speak(utterance);
                 break;
             }
             case SpeakerState.SPEAKING: {
                 this.state = SpeakerState.REGULAR_DELAY;
-                var duration_ms = make_duration_ms();
+                var duration_ms = makeDurationMS();
                 if (isNaN(duration_ms)) {
                     duration_ms = 1000;
                 }
@@ -158,60 +158,70 @@ class Speaker {
     } // end of function
 }
 
-function toggle_play() {
+function togglePlay() {
     if (speaker) {
         speaker.stop()
         speaker = null
-        update_ui()
+        updateUI()
     } else {
         speaker = new Speaker();
         speaker.start();
-        update_ui();
+        updateUI();
     }
 }
 
-function value_changed(e) {
+function onValueChange(e) {
     save();
 }
 
 function init() {
     console.log("init");
     load();
-    update_ui();
+    updateUI();
 
     // For input-entry fields...
 
     // ... capture 'enter' key-presses, and whatever other text-entry-completion actions are available
-    document.getElementById("delay_range_a").addEventListener("change", value_changed);
-    document.getElementById("delay_range_b").addEventListener("change", value_changed);
-    document.getElementById("phrases").addEventListener("change", value_changed);
+    document.getElementById("delayRangeAS").addEventListener("change", onValueChange);
+    document.getElementById("delayRangeBS").addEventListener("change", onValueChange);
+    document.getElementById("phrases").addEventListener("change", onValueChange);
 
     // ... capture key-down events (in order to save without needing to press 'enter')
-    document.getElementById("delay_range_a").addEventListener("keydown", value_changed);
-    document.getElementById("delay_range_b").addEventListener("keydown", value_changed);
-    document.getElementById("phrases").addEventListener("keydown", value_changed);
+    document.getElementById("delayRangeAS").addEventListener("keydown", onValueChange);
+    document.getElementById("delayRangeBS").addEventListener("keydown", onValueChange);
+    document.getElementById("phrases").addEventListener("keydown", onValueChange);
 }
 
 function save() {
     var s = window.localStorage;
-    s.setItem("delay_range_a", document.getElementById("delay_range_a").value);
-    s.setItem("delay_range_b", document.getElementById("delay_range_b").value);
+    s.setItem("delayRangeAS", document.getElementById("delayRangeAS").value);
+    s.setItem("delayRangeBS", document.getElementById("delayRangeBS").value);
     s.setItem("phrases", document.getElementById("phrases").value);
-    s.setItem("choices", document.getElementById("phrases").value); // deprecated; for forward compatibility
+
+    // deprecated; for forward compatibility
+    s.setItem("delay_range_a", document.getElementById("delayRangeAS").value);
+    s.setItem("delay_range_b", document.getElementById("delayRangeBS").value);
+    s.setItem("choices", document.getElementById("phrases").value);
 }
 
 function load() {
     var s = window.localStorage;
     var tmp;
 
-    tmp = s.getItem("delay_range_a");
+    tmp = s.getItem("delayRangeAS");
+    if (tmp === null) {
+        tmp = s.getItem("delay_range_a"); // deprecated; for backwards compatibility
+    }
     if (tmp !== null) {
-        document.getElementById("delay_range_a").value = tmp;
+        document.getElementById("delayRangeAS").value = tmp;
     }
 
-    tmp = s.getItem("delay_range_b");
+    tmp = s.getItem("delayRangeBS");
+    if (tmp === null) {
+        tmp = s.getItem("delay_range_b"); // deprecated; for backwards compatibility
+    }
     if (tmp !== null) {
-        document.getElementById("delay_range_b").value = tmp;
+        document.getElementById("delayRangeBS").value = tmp;
     }
 
     tmp = s.getItem("phrases");
