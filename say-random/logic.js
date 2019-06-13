@@ -3,7 +3,8 @@ var button_text_pause = '⏸️ Pause';
 var button_text_play = '▶️ Play';
 var status_text_paused = 'Timer is paused';
 var status_text_running = 'Timer is running';
-var timer = null;
+var speaker = null;
+const delay_on_start_s = 1;
 
 function get_choices() {
     var input = document.getElementById("choices");
@@ -16,29 +17,16 @@ function get_choices() {
     return output;
 }
 
-function speak(message) {
-    let synth = window.speechSynthesis;
-    let utterance = new SpeechSynthesisUtterance(message);
-    console.log("speak: \"" + message + "\"");
-    synth.speak(utterance);
-}
-
-function speak_random_choice() {
+function random_phrase() {
     var choices = get_choices();
     var index = Math.floor(Math.random() * choices.length);
-    var choice = choices[index];
-    if (isNaN(make_duration_ms())) {
-        console.log("...");
-    } else {
-        speak(choice);
-    }
-    schedule_next();
+    return choices[index];
 }
 
 function update_ui() {
     var play_or_pause = document.getElementById("play_or_pause");
     var status_text = document.getElementById("status_text");
-    if (timer) {
+    if (speaker !== null && speaker.isRunning()) {
         console.log("is running");
         play_or_pause.value = button_text_pause;
     } else {
@@ -61,33 +49,127 @@ function make_duration_ms() {
     return value;
 }
 
-function schedule_next() {
-    if (timer) {
-        if (timer !== true) {
-            clearTimeout(timer);
-        }
-        var duration = make_duration_ms();
-        if (isNaN(duration)) {
-            duration = 1000;
-        }
-        console.log("next in " + duration);
-        timer = setTimeout(speak_random_choice, duration);
+
+const SpeakerState = {
+    STOPPED: "STOPPED",
+    SPEAKING_START: "SPEAKING_START",
+    INITIAL_DELAY: "INITIAL_DELAY",
+    SPEAKING: "SPEAKING",
+    REGULAR_DELAY: "REGULAR_DELAY"
+};
+
+class Speaker {
+    constructor() {
+        this.currentStepCount = 0;
+        this.state = SpeakerState.STOPPED;
+        this.logStd("Speaker constructed");
     }
+
+    logStd(callerName, ...logMe) {
+        // console.log(callerName, this.state, this.currentStepCount, logMe);
+    } 
+
+    makeContinuation(debugName) {
+        const ourStepCount = this.currentStepCount;
+        var this_ = this; // needed as continuation body will have a different 'this'
+        return function () {
+            this_.logStd(debugName, ourStepCount);
+            if (ourStepCount == this_.currentStepCount) {
+                this_.next();
+            }
+        }
+    }
+
+    makeSingleShotUtterance(text) {
+        this.logStd("makeSingleShotUtterance");
+        var utterance = new SpeechSynthesisUtterance(text);
+        return utterance;
+    }
+
+    makeContinuingUtterance(text) {
+        this.logStd("makeContinuingUtterance", text);
+        var utterance = this.makeSingleShotUtterance(text);
+        utterance.onend = this.makeContinuation("onend");
+        return utterance;
+    }
+
+    start() {
+        this.logStd("start");
+        ++this.currentStepCount;
+        if (this.isRunning()) {
+            this.state = SpeakerState.STOPPED;
+            window.speechSynthesis.cancel();
+        }
+        this.delayOnNext = false;
+        this.state = SpeakerState.SPEAKING_START;
+        var utterance = this.makeContinuingUtterance("Start");
+        window.speechSynthesis.speak(utterance);
+    }
+
+    stop() {
+        this.logStd("stop");
+        ++this.currentStepCount;
+        this.state = SpeakerState.STOPPED;
+        window.speechSynthesis.cancel();
+        var utterance = this.makeSingleShotUtterance("Stop");
+        window.speechSynthesis.speak(utterance);
+    }
+
+    isRunning() {
+        return this.state !== SpeakerState.STOPPED;
+    }
+
+    next() {
+        this.logStd("next");
+        if (!this.isRunning()) {
+            return;
+        }
+        ++this.currentStepCount;
+        switch (this.state) {
+            case SpeakerState.STOPPED: {
+                break;
+            }
+            case SpeakerState.SPEAKING_START: {
+                this.state = SpeakerState.INITIAL_DELAY;
+                setTimeout(
+                    this.makeContinuation("timeout,INITIAL_DELAY"),
+                    delay_on_start_s * 1000
+                );
+                break;
+            }
+            case SpeakerState.INITIAL_DELAY:
+            case SpeakerState.REGULAR_DELAY: {
+                this.state = SpeakerState.SPEAKING;
+                var phrase = random_phrase();
+                var utterance = this.makeContinuingUtterance(phrase);
+                window.speechSynthesis.speak(utterance);
+                break;
+            }
+            case SpeakerState.SPEAKING: {
+                this.state = SpeakerState.REGULAR_DELAY;
+                var duration_ms = make_duration_ms();
+                if (isNaN(duration_ms)) {
+                    duration_ms = 1000;
+                }
+                setTimeout(
+                    this.makeContinuation("timeout,REGULAR_DELAY"),
+                    duration_ms
+                );
+                break;
+            }
+        } // end of switch
+    } // end of function
 }
 
 function toggle_pause() {
-    if (timer) {
-        speak("stop");
-        if (timer !== true) {
-            clearTimeout(timer);
-        }
-        timer = null;
-        update_ui();
+    if (speaker) {
+        speaker.stop()
+        speaker = null
+        update_ui()
     } else {
-        speak("start");
-        timer = true;       // a proper timer will be filled in via schedule_next()
+        speaker = new Speaker();
+        speaker.start();
         update_ui();
-        schedule_next();
     }
 }
 
