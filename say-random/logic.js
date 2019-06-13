@@ -1,7 +1,7 @@
 
-var button_text_pause = '⏸️ Pause';
+var button_text_stop = '⏹ Stop';
 var button_text_play = '▶️ Play';
-var status_text_paused = 'Timer is paused';
+var status_text_stopped = 'Timer is stopped';
 var status_text_running = 'Timer is running';
 var speaker = null;
 const delay_on_start_s = 1;
@@ -24,14 +24,14 @@ function random_phrase() {
 }
 
 function update_ui() {
-    var play_or_pause = document.getElementById("play_or_pause");
+    var play_or_stop = document.getElementById("play_or_stop");
     var status_text = document.getElementById("status_text");
     if (speaker !== null && speaker.isRunning()) {
         console.log("is running");
-        play_or_pause.value = button_text_pause;
+        play_or_stop.value = button_text_stop;
     } else {
-        console.log("is paused");
-        play_or_pause.value = button_text_play;
+        console.log("is stopped");
+        play_or_stop.value = button_text_play;
     }
 }
 
@@ -161,7 +161,7 @@ class Speaker {
     } // end of function
 }
 
-function toggle_pause() {
+function toggle_play() {
     if (speaker) {
         speaker.stop()
         speaker = null
@@ -224,7 +224,7 @@ document.addEventListener("keypress", function (e) {
     switch (e.charCode) {
         case 32:    // spacebar
             if (document.activeElement != document.getElementById('choices')) {
-                toggle_pause();
+                toggle_play();
             }
             break;
     }
