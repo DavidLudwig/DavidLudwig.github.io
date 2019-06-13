@@ -144,13 +144,13 @@ class Speaker {
             }
             case SpeakerState.SPEAKING: {
                 this.state = SpeakerState.REGULAR_DELAY;
-                var duration_ms = makeDurationMS();
-                if (isNaN(duration_ms)) {
-                    duration_ms = 1000;
+                var durationMS = makeDurationMS();
+                if (isNaN(durationMS)) {
+                    durationMS = 1000;
                 }
                 setTimeout(
                     this.makeContinuation("timeout,REGULAR_DELAY"),
-                    duration_ms
+                    durationMS
                 );
                 break;
             }
