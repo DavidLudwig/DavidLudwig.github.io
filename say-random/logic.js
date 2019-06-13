@@ -161,7 +161,6 @@ class Speaker {
 function togglePlay() {
     if (speaker && speaker.isRunning()) {
         speaker.stop()
-        speaker = null
         updateUI()
     } else {
         if (!speaker) {
