@@ -97,7 +97,6 @@ class Speaker {
             this.state = SpeakerState.STOPPED;
             window.speechSynthesis.cancel();
         }
-        this.delayOnNext = false;
         this.state = SpeakerState.SPEAKING_START;
         var utterance = this.makeContinuingUtterance("Start");
         window.speechSynthesis.speak(utterance);
