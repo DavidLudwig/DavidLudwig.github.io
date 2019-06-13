@@ -237,7 +237,7 @@ document.addEventListener("keypress", function (e) {
     switch (e.charCode) {
         case 32:    // spacebar
             if (document.activeElement != document.getElementById("phrases")) {
-                toggle_play();
+                togglePlay();
             }
             break;
     }
