@@ -1,0 +1,47 @@
+# HG changeset patch
+# User David Ludwig <dludwig@pobox.com>
+# Date 1580151560 18000
+#      Mon Jan 27 13:59:20 2020 -0500
+# Branch sdl2
+# Node ID 1b972cd218d31d0dd9bd3631a2213f36f892aaae
+# Parent  24df4a4651f74731a61414b5bd9a3c120633fb39
+bug-fix: crash in demo I/O code
+
+read_demo_keys() was, with data files from "tyrian21.zip", reliably
+crashing when attempting to play either demo.4 or demo.5.  It was
+attempting to perform an efread() of 2 bytes when EOF had been
+reached.  efread(), which is an OpenTyrian-specific function, would
+treat the failed-read as an error worthy of aborting/exiting the app
+by calling JE_tyrianHalt(), which forcefully closes the app.
+
+The fix applied here is to have read_demo_keys() perform a check on
+whether enough data is available in the file before it performs any
+I/O.  To note, it will check for three available bytes, not two, in
+order to cover both the efread() call (for 2 bytes) and its
+subsequent getc() call (for 1 byte).
+
+diff -r 24df4a4651f7 -r 1b972cd218d3 src/mainint.c
+--- a/src/mainint.c	Sat Mar 03 11:36:07 2018 -0700
++++ b/src/mainint.c	Mon Jan 27 13:59:20 2020 -0500
+@@ -1838,12 +1838,20 @@
+ {
+ 	demo_keys = next_demo_keys;
+ 
++	// Make sure there is enough data left in 'demo_file' for this call's
++	// read operations.  If not, OpenTyrian has been known to fail
++	// catastrophically in such cases (via a call to JE_tyrianHalt()).
++	if ((ftell_eof(demo_file) - ftell(demo_file)) < 3)
++	{
++		return false;
++	}
++
+ 	efread(&demo_keys_wait, sizeof(Uint16), 1, demo_file);
+ 	demo_keys_wait = SDL_Swap16(demo_keys_wait);
+ 
+ 	next_demo_keys = getc(demo_file);
+ 
+-	return !feof(demo_file);
++	return true;
+ }
+ 
+ /*Street Fighter codes*/
